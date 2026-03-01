@@ -7,12 +7,12 @@
 // ╚══════════════════════════════════════════════════════════════╝
 
 const firebaseConfig = {
-  apiKey:            "YOUR_API_KEY_HERE",
-  authDomain:        "YOUR_PROJECT.firebaseapp.com",
-  projectId:         "YOUR_PROJECT_ID",
-  storageBucket:     "YOUR_PROJECT.firebasestorage.app",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId:             "YOUR_APP_ID"
+  apiKey: "AIzaSyBOkBV9wzg0oFR5RbN7TelR3UCwpcvZcc4",
+  authDomain: "binyah-dr-system-77705.firebaseapp.com",
+  projectId: "binyah-dr-system-77705",
+  storageBucket: "binyah-dr-system-77705.firebasestorage.app",
+  messagingSenderId: "261726284404",
+  appId: "1:261726284404:web:3fe5035fba618fa4c77f21"
 };
 
 // Initialize Firebase
