@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BINYAH — DR Closure Report</title>
+<meta name="theme-color" content="#1a1f2e">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--dark:#1a1f2e;--blue:#0066b3;--gold:#c8982a;--light:#f4f6f9;--green:#27ae60;--red:#e74c3c;--orange:#f39c12;--purple:#8e44ad;--text:#2c3e50;--muted:#7f8c8d;--border:#e0e4e8}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--light);color:var(--text);-webkit-font-smoothing:antialiased}
+
+.topbar{background:var(--dark);color:#fff;padding:0 24px;height:56px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.topbar .brand{font-size:20px;font-weight:700;letter-spacing:-.5px}
+.topbar .brand span{color:var(--gold)}
+.topbar nav{display:flex;gap:4px;margin-left:24px;flex:1}
+.topbar nav a{color:rgba(255,255,255,.55);text-decoration:none;padding:8px 16px;border-radius:6px;font-size:13px;font-weight:500;transition:all .2s}
+.topbar nav a:hover{color:#fff;background:rgba(255,255,255,.08)}
+.topbar nav a.active{color:var(--gold);background:rgba(200,152,42,.12)}
+
+.main{max-width:800px;margin:0 auto;padding:24px}
+.form-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.form-title h1{font-size:24px;font-weight:700}
+.form-title h1 small{display:block;font-size:13px;color:var(--muted);font-weight:400;font-family:'Space Mono',monospace}
+.mode-badge{padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;font-family:'Space Mono',monospace;letter-spacing:.5px}
+.m-new{background:#e8f4fd;color:var(--blue)}.m-edit{background:#fef3e0;color:var(--orange)}
+
+.card{background:#fff;border-radius:12px;padding:32px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:20px}
+.card h3{font-size:16px;font-weight:700;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--light);display:flex;align-items:center;gap:8px}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.fg.c3{grid-template-columns:1fr 1fr 1fr}
+.fi{display:flex;flex-direction:column}
+.fi.full{grid-column:1/-1}
+.fi label{font-size:13px;font-weight:600;margin-bottom:5px}
+.fi label .req{color:var(--red)}
+.fi input,.fi select,.fi textarea{padding:10px 14px;border:2px solid var(--border);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:border .2s;background:#fff}
+.fi input:focus,.fi select:focus,.fi textarea:focus{border-color:var(--blue)}
+.fi textarea{resize:vertical;min-height:80px}
+.fi input:disabled{background:#f5f5f5;color:var(--muted)}
+
+.status-opts{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.so{padding:8px 16px;border:2px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s}
+.so:hover{border-color:var(--blue)}
+.so.sel{color:#fff}
+.so[data-v="Open"].sel{background:var(--red);border-color:var(--red)}
+.so[data-v="Under Review"].sel{background:var(--orange);border-color:var(--orange)}
+.so[data-v="Rejected"].sel{background:var(--purple);border-color:var(--purple)}
+.so[data-v="Closed"].sel{background:var(--green);border-color:var(--green)}
+
+.photo-drop{border:2px dashed var(--border);border-radius:10px;padding:24px;text-align:center;cursor:pointer;transition:all .2s;min-height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+.photo-drop:hover{border-color:var(--blue);background:#f0f7ff}
+.photo-drop .ic{font-size:32px;opacity:.5}
+.photo-drop p{font-size:13px;color:var(--muted)}
+.photo-prev{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.photo-prev img{width:80px;height:80px;border-radius:8px;object-fit:cover;border:2px solid var(--border)}
+
+.sig-box{border:2px solid var(--border);border-radius:10px;overflow:hidden}
+.sig-box canvas{width:100%;height:150px;display:block;cursor:crosshair}
+.sig-bar{display:flex;gap:8px;padding:8px;background:var(--light);border-top:1px solid var(--border)}
+.sig-bar button{padding:6px 12px;border:1px solid var(--border);border-radius:6px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;background:#fff;color:var(--red)}
+.sig-bar button:hover{background:#fef2f2}
+
+.btn{padding:12px 24px;border-radius:8px;border:none;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;display:inline-flex;align-items:center;gap:8px;text-decoration:none}
+.btn-primary{background:var(--blue);color:#fff}.btn-primary:hover{background:#005299;transform:translateY(-1px)}
+.btn-green{background:var(--green);color:#fff}.btn-green:hover{background:#219a52}
+.btn-outline{background:transparent;border:2px solid var(--border);color:var(--text)}.btn-outline:hover{border-color:var(--blue);color:var(--blue)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.form-acts{display:flex;gap:12px;justify-content:flex-end;margin-top:24px;flex-wrap:wrap}
+
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:1000}
+.overlay.show{display:flex}
+.success{background:#fff;border-radius:16px;padding:40px;text-align:center;max-width:400px;animation:pop .3s ease}
+@keyframes pop{from{transform:scale(.8);opacity:0}to{transform:none;opacity:1}}
+.success .ic{font-size:48px;margin-bottom:12px}
+.success h2{font-size:20px;margin-bottom:8px}
+.success p{color:var(--muted);margin-bottom:20px;font-size:14px}
+
+.loading{position:fixed;inset:0;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:16px}
+.loading .sp{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite}
+.loading p{font-size:14px;color:var(--muted)}
+
+@media(max-width:768px){
+  .topbar nav{display:none}.main{padding:16px}.card{padding:20px}
+  .fg,.fg.c3{grid-template-columns:1fr}
+  .form-acts{flex-direction:column}.form-acts .btn{width:100%;justify-content:center}
+}
+</style>
+</head>
+<body>
+
+<div class="loading" id="loader"><div class="sp"></div><p>Loading...</p></div>
+
+<div class="topbar">
+  <div class="brand">BINYAH<span>.</span></div>
+  <nav>
+    <a href="./index.html">Dashboard</a>
+    <a href="./form.html" class="active">DR Form</a>
+  </nav>
+</div>
+
+<div class="main">
+  <div class="form-title">
+    <h1>DR Closure Report<small>NCD408 — DGDA King Salman Knowledge District</small></h1>
+    <span class="mode-badge m-new" id="modeBadge">NEW DR</span>
+  </div>
+
+  <div class="card">
+    <h3>📋 Deficiency Information</h3>
+    <div class="fg">
+      <div class="fi"><label>DR Number</label><input type="text" id="drNumber" disabled placeholder="Auto-generated"></div>
+      <div class="fi"><label>Project Code</label><input type="text" id="projectCode" value="NCD408" disabled></div>
+      <div class="fi"><label>Discipline <span class="req">*</span></label><select id="discipline" required><option value="">Select Discipline</option></select></div>
+      <div class="fi"><label>Subcontractor <span class="req">*</span></label><select id="subcontractor" required><option value="">Select Subcontractor</option></select></div>
+      <div class="fi full"><label>Location <span class="req">*</span></label><input type="text" id="location" placeholder="e.g. Building A, Zone 3, 2nd Floor" required></div>
+      <div class="fi full"><label>Deficiency Description <span class="req">*</span></label><textarea id="description" rows="3" placeholder="Describe the deficiency..." required></textarea></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>⚡ Classification & Dates</h3>
+    <div class="fg c3">
+      <div class="fi"><label>Severity <span class="req">*</span></label><select id="severity"><option>Minor</option><option>Major</option><option>Critical</option></select></div>
+      <div class="fi"><label>Issued Date</label><input type="date" id="issuedDate"></div>
+      <div class="fi"><label>Due Date</label><input type="date" id="dueDate"></div>
+    </div>
+    <div class="fi" style="margin-top:16px">
+      <label>Status</label>
+      <div class="status-opts">
+        <div class="so sel" data-v="Open" onclick="selSt(this)">Open</div>
+        <div class="so" data-v="Under Review" onclick="selSt(this)">Under Review</div>
+        <div class="so" data-v="Rejected" onclick="selSt(this)">Rejected</div>
+        <div class="so" data-v="Closed" onclick="selSt(this)">Closed</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🔧 Corrective Action & Closure</h3>
+    <div class="fg">
+      <div class="fi full"><label>Corrective Action Taken</label><textarea id="correctiveAction" rows="3" placeholder="Describe corrective action..."></textarea></div>
+      <div class="fi"><label>Issued By</label><input type="text" id="issuedBy" value="QA/QC Inspector"></div>
+      <div class="fi"><label>Closed By</label><input type="text" id="closedBy" placeholder="Verification officer"></div>
+      <div class="fi full"><label>Remarks</label><textarea id="remarks" rows="2" placeholder="Additional notes..."></textarea></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📸 Photo Evidence</h3>
+    <div class="photo-drop" onclick="document.getElementById('photoIn').click()">
+      <div class="ic">📷</div><p>Click to upload photos or take a picture</p>
+    </div>
+    <input type="file" id="photoIn" multiple accept="image/*" capture="environment" style="display:none" onchange="handlePhotos(this.files)">
+    <div class="photo-prev" id="photoPrev"></div>
+  </div>
+
+  <div class="card">
+    <h3>✍️ Inspector Signature</h3>
+    <div class="sig-box">
+      <canvas id="sigCanvas"></canvas>
+      <div class="sig-bar"><button onclick="clearSig()">Clear</button></div>
+    </div>
+  </div>
+
+  <div class="form-acts">
+    <a href="./index.html" class="btn btn-outline">← Back to Dashboard</a>
+    <button class="btn btn-primary" id="saveBtn" onclick="saveDR(false)">Save as Draft</button>
+    <button class="btn btn-green" id="submitBtn" onclick="saveDR(true)">Submit DR</button>
+  </div>
+</div>
+
+<div class="overlay" id="successOL">
+  <div class="success">
+    <div class="ic">✅</div>
+    <h2 id="sucTitle">DR Submitted!</h2>
+    <p id="sucMsg">Saved and synced to dashboard.</p>
+    <button class="btn btn-primary" onclick="location.href='./index.html'">← Go to Dashboard</button>
+    <button class="btn btn-outline" style="margin-top:8px" onclick="location.href='./form.html'">+ Create Another</button>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+<script src="./js/firebase-config.js"></script>
+<script src="./js/dr-service.js"></script>
+
+<script>
+let editMode=false,editDocId=null,existingDR=null,photoFiles=[],existingURLs=[],curStatus='Open';
+let sigCanvas,sigCtx,drawing=false;
+
+document.addEventListener('DOMContentLoaded',()=>initForm());
+
+async function initForm(){
+  // Dropdowns
+  DR_DISCIPLINES.forEach(d=>{const o=document.createElement('option');o.value=d;o.textContent=d;document.getElementById('discipline').appendChild(o)});
+  DR_SUBCONTRACTORS.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;document.getElementById('subcontractor').appendChild(o)});
+  initSig();setDates();
+
+  // Edit mode?
+  const id=new URLSearchParams(location.search).get('id');
+  if(id){
+    editMode=true;editDocId=id;
+    document.getElementById('modeBadge').textContent='EDITING';
+    document.getElementById('modeBadge').className='mode-badge m-edit';
+    await loadDR(id);
+  } else {
+    const next=await DRService.getNextDRNumber();
+    document.getElementById('drNumber').value=next.display;
+  }
+  document.getElementById('loader').style.display='none';
+}
+
+function setDates(){
+  const today=new Date().toISOString().slice(0,10);
+  document.getElementById('issuedDate').value=today;
+  const due=new Date();due.setDate(due.getDate()+14);
+  document.getElementById('dueDate').value=due.toISOString().slice(0,10);
+}
+
+async function loadDR(id){
+  try{
+    existingDR=await DRService.getDR(id);
+    if(!existingDR){alert('DR not found');location.href='./index.html';return}
+    const d=existingDR;
+    document.getElementById('drNumber').value=d.drNumber||'';
+    document.getElementById('discipline').value=d.discipline||'';
+    document.getElementById('subcontractor').value=d.subcontractor||'';
+    document.getElementById('location').value=d.location||'';
+    document.getElementById('description').value=d.description||'';
+    document.getElementById('severity').value=d.severity||'Minor';
+    document.getElementById('correctiveAction').value=d.correctiveAction||'';
+    document.getElementById('issuedBy').value=d.issuedBy||'';
+    document.getElementById('closedBy').value=d.closedBy||'';
+    document.getElementById('remarks').value=d.remarks||'';
+    if(d.issuedDate){const dt=d.issuedDate.toDate?d.issuedDate.toDate():new Date(d.issuedDate);document.getElementById('issuedDate').value=dt.toISOString().slice(0,10)}
+    if(d.dueDate){const dt=d.dueDate.toDate?d.dueDate.toDate():new Date(d.dueDate);document.getElementById('dueDate').value=dt.toISOString().slice(0,10)}
+    curStatus=d.status||'Open';
+    document.querySelectorAll('.so').forEach(el=>el.classList.toggle('sel',el.dataset.v===curStatus));
+    if(d.photoURLs&&d.photoURLs.length){existingURLs=d.photoURLs;d.photoURLs.forEach(u=>{const img=document.createElement('img');img.src=u;document.getElementById('photoPrev').appendChild(img)})}
+  }catch(e){console.error(e);alert('Error: '+e.message)}
+}
+
+function selSt(el){document.querySelectorAll('.so').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');curStatus=el.dataset.v}
+
+function handlePhotos(files){
+  Array.from(files).forEach(f=>{
+    if(f.size>10*1024*1024){alert(f.name+' too large');return}
+    photoFiles.push(f);
+    const r=new FileReader();r.onload=e=>{const img=document.createElement('img');img.src=e.target.result;document.getElementById('photoPrev').appendChild(img)};
+    r.readAsDataURL(f);
+  });
+}
+
+function initSig(){
+  sigCanvas=document.getElementById('sigCanvas');sigCtx=sigCanvas.getContext('2d');
+  const resize=()=>{const r=sigCanvas.parentElement.getBoundingClientRect();sigCanvas.width=r.width;sigCanvas.height=150};
+  resize();window.addEventListener('resize',resize);
+  sigCanvas.addEventListener('pointerdown',e=>{drawing=true;sigCtx.beginPath();sigCtx.moveTo(e.offsetX,e.offsetY)});
+  sigCanvas.addEventListener('pointermove',e=>{if(!drawing)return;sigCtx.lineTo(e.offsetX,e.offsetY);sigCtx.strokeStyle='#1a1f2e';sigCtx.lineWidth=2;sigCtx.lineCap='round';sigCtx.stroke()});
+  sigCanvas.addEventListener('pointerup',()=>drawing=false);
+  sigCanvas.addEventListener('pointerleave',()=>drawing=false);
+}
+function clearSig(){sigCtx.clearRect(0,0,sigCanvas.width,sigCanvas.height)}
+function sigEmpty(){const d=sigCtx.getImageData(0,0,sigCanvas.width,sigCanvas.height).data;for(let i=3;i<d.length;i+=4)if(d[i]>0)return false;return true}
+
+async function saveDR(isSubmit){
+  const disc=document.getElementById('discipline').value;
+  const sub=document.getElementById('subcontractor').value;
+  const loc=document.getElementById('location').value;
+  const desc=document.getElementById('description').value;
+  if(isSubmit&&(!disc||!sub||!loc||!desc)){alert('Fill all required fields');return}
+
+  const sBtn=document.getElementById('saveBtn'),uBtn=document.getElementById('submitBtn');
+  sBtn.disabled=uBtn.disabled=true;
+  const btn=isSubmit?uBtn:sBtn,orig=btn.textContent;
+  btn.innerHTML='<span class="spinner"></span> Saving...';
+
+  try{
+    let urls=[...existingURLs];
+    const num=document.getElementById('drNumber').value||'NEW';
+    for(const f of photoFiles){urls.push(await DRService.uploadPhoto(f,num))}
+    let sigs=existingDR?.signatures||{};
+    if(!sigEmpty()){sigs.inspector=await DRService.uploadSignature(sigCanvas.toDataURL(),num,'inspector')}
+
+    const data={
+      projectCode:'NCD408',discipline:disc,subcontractor:sub,location:loc,description:desc,
+      severity:document.getElementById('severity').value,status:curStatus,
+      issuedDate:document.getElementById('issuedDate').value,
+      dueDate:document.getElementById('dueDate').value,
+      issuedBy:document.getElementById('issuedBy').value,
+      closedBy:document.getElementById('closedBy').value,
+      correctiveAction:document.getElementById('correctiveAction').value,
+      remarks:document.getElementById('remarks').value,
+      photoURLs:urls,signatures:sigs
+    };
+    if(curStatus==='Closed'&&!existingDR?.closedDate)data.closedDate=new Date().toISOString();
+
+    let resultNum;
+    if(editMode&&editDocId){await DRService.updateDR(editDocId,data);resultNum=document.getElementById('drNumber').value}
+    else{const r=await DRService.createDR(data);resultNum=r.drNumber}
+
+    document.getElementById('sucTitle').textContent=editMode?'DR Updated!':'DR Submitted!';
+    document.getElementById('sucMsg').textContent=`${resultNum} saved & synced to dashboard.`;
+    document.getElementById('successOL').classList.add('show');
+  }catch(e){console.error(e);alert('Error: '+e.message)}
+  finally{sBtn.disabled=uBtn.disabled=false;btn.textContent=orig}
+}
+</script>
+</body>
+</html>
