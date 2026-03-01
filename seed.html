@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BINYAH DR — Seed Data</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:system-ui,sans-serif;background:#1a1f2e;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+  .card{background:#fff;color:#2c3e50;border-radius:16px;padding:40px;max-width:600px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+  h1{font-size:24px;margin-bottom:8px}
+  p{color:#7f8c8d;margin-bottom:20px;font-size:14px;line-height:1.6}
+  .btn{padding:14px 28px;border:none;border-radius:8px;font-size:16px;font-weight:700;cursor:pointer;width:100%;transition:all .2s;font-family:inherit}
+  .btn-seed{background:#0066b3;color:#fff}
+  .btn-seed:hover{background:#005299}
+  .btn-clear{background:#e74c3c;color:#fff;margin-top:10px}
+  .btn-clear:hover{background:#c0392b}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .log{background:#f4f6f9;border-radius:8px;padding:16px;margin-top:20px;max-height:300px;overflow-y:auto;font-family:monospace;font-size:12px;line-height:1.8;display:none}
+  .log .ok{color:#27ae60}.log .err{color:#e74c3c}.log .info{color:#0066b3}
+  .warn{background:#fef3e0;border:1px solid #f39c12;border-radius:8px;padding:12px;margin-bottom:16px;font-size:13px;color:#7f6c3e}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>BINYAH DR — Data Seeder</h1>
+  <p>This page creates <strong>12 sample Deficiency Reports</strong> in your Firebase database so you can see the Dashboard and Form working with real data.</p>
+  
+  <div class="warn">
+    ⚠️ <strong>Run this only once.</strong> Running again will create duplicate DRs. Use "Clear All" to reset.
+  </div>
+
+  <button class="btn btn-seed" id="seedBtn" onclick="seedData()">🔥 Seed 12 Sample DRs</button>
+  <button class="btn btn-clear" id="clearBtn" onclick="clearData()">🗑 Clear All DRs</button>
+  
+  <div class="log" id="log"></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="./js/firebase-config.js"></script>
+
+<script>
+const log = document.getElementById('log');
+function addLog(msg, cls='info') {
+  log.style.display = 'block';
+  log.innerHTML += `<div class="${cls}">${msg}</div>`;
+  log.scrollTop = log.scrollHeight;
+}
+
+const sampleDRs = [
+  { drNumber:'DR-0001', drNumeric:1, discipline:'MEP - Electrical', subcontractor:'Al Bawani', location:'Building A, Zone 2, 3rd Floor', description:'Electrical conduit exposed without proper fire-rated sealant at floor penetration. Missing firestop collar at MEP shaft.', severity:'Critical', status:'Open', issuedBy:'Ahmed Al-Rashid', daysAgo:28, dueDays:14, correctiveAction:'', remarks:'' },
+  { drNumber:'DR-0002', drNumeric:2, discipline:'Architectural', subcontractor:'Saudi Binladin', location:'Building B, Main Lobby', description:'Floor tile alignment inconsistent at entrance lobby. Grout lines deviating >3mm from specification. Visible lippage between tiles.', severity:'Major', status:'Under Review', issuedBy:'Musab Saleh', daysAgo:25, dueDays:10, correctiveAction:'Tiles re-laid in affected area. Grout lines corrected.', remarks:'Awaiting PMC inspection' },
+  { drNumber:'DR-0003', drNumeric:3, discipline:'Civil', subcontractor:'El Seif Engineering', location:'Parking P2, Column Grid C4-C7', description:'Concrete spalling observed on parking structure columns. Exposed reinforcement at two locations. Core test results pending.', severity:'Critical', status:'Open', issuedBy:'Khalid Ibrahim', daysAgo:21, dueDays:7, correctiveAction:'', remarks:'Structural engineer notified' },
+  { drNumber:'DR-0004', drNumeric:4, discipline:'MEP - Plumbing', subcontractor:'Nesma & Partners', location:'Building A, Zone 1, Roof Level', description:'Drainage pipe slope insufficient (<1%). Standing water observed in horizontal run. Non-compliant with ASHRAE standards.', severity:'Major', status:'Open', issuedBy:'Ahmed Al-Rashid', daysAgo:18, dueDays:12, correctiveAction:'', remarks:'' },
+  { drNumber:'DR-0005', drNumeric:5, discipline:'Fire Protection', subcontractor:'Al Arrab Contracting', location:'Building C, Basement B1', description:'Fire sprinkler heads installed below ceiling grid obstruction. Coverage area does not meet NFPA 13 requirements for standard spray upright heads.', severity:'Critical', status:'Under Review', issuedBy:'Musab Saleh', daysAgo:15, dueDays:5, correctiveAction:'Sprinkler heads relocated per revised shop drawing Rev.3', remarks:'Re-inspection scheduled for March 5' },
+  { drNumber:'DR-0006', drNumeric:6, discipline:'MEP - Mechanical', subcontractor:'Al Bawani', location:'Building A, Zone 3, AHU Room', description:'HVAC ductwork insulation missing in mechanical room. Condensation risk on chilled water supply ducts.', severity:'Minor', status:'Closed', issuedBy:'Khalid Ibrahim', daysAgo:30, dueDays:14, correctiveAction:'Insulation applied per specification. Vapor barrier installed on all CW ducts.', remarks:'Verified and closed by QA/QC', closedDaysAgo:5 },
+  { drNumber:'DR-0007', drNumeric:7, discipline:'Elevator', subcontractor:'Haif Company', location:'Building B, Elevator Shaft E3', description:'Elevator guide rail brackets not torqued to specification. 3 of 12 brackets found loose during inspection.', severity:'Major', status:'Closed', issuedBy:'Ahmed Al-Rashid', daysAgo:22, dueDays:10, correctiveAction:'All brackets re-torqued to 85 Nm per manufacturer spec. Torque values documented.', remarks:'Lift consultant approved closure', closedDaysAgo:8 },
+  { drNumber:'DR-0008', drNumeric:8, discipline:'Structural', subcontractor:'Saudi Binladin', location:'Building C, 5th Floor Slab', description:'Post-tension cable profile deviation exceeding tolerance at mid-span. Surveyed elevation 15mm below design level.', severity:'Critical', status:'Open', issuedBy:'Musab Saleh', daysAgo:10, dueDays:3, correctiveAction:'', remarks:'Design engineer reviewing load implications' },
+  { drNumber:'DR-0009', drNumeric:9, discipline:'Landscaping', subcontractor:'Modern Building Leaders', location:'Central Plaza, North Garden', description:'Irrigation system lateral lines installed at incorrect depth. Sprinkler heads not achieving designed throw radius.', severity:'Minor', status:'Closed', issuedBy:'Khalid Ibrahim', daysAgo:35, dueDays:14, correctiveAction:'Laterals re-trenched to 300mm depth. Sprinkler heads replaced with correct model.', remarks:'Coverage test passed', closedDaysAgo:15 },
+  { drNumber:'DR-0010', drNumeric:10, discipline:'BMS/LCS', subcontractor:'Al Bawani', location:'Building A, BMS Room', description:'BMS controller network communication failure on LON bus segment 3. 8 of 24 field devices not responding to polling.', severity:'Major', status:'Open', issuedBy:'Ahmed Al-Rashid', daysAgo:7, dueDays:10, correctiveAction:'', remarks:'Vendor technician scheduled' },
+  { drNumber:'DR-0011', drNumeric:11, discipline:'Architectural', subcontractor:'Almabani', location:'Building B, West Facade', description:'Curtain wall gasket seal failure at 4th floor junction. Daylight visible through joint gap. Water ingress risk during rain.', severity:'Major', status:'Rejected', issuedBy:'Musab Saleh', daysAgo:12, dueDays:7, correctiveAction:'Subcontractor claims within tolerance', remarks:'Rejected - evidence shows non-compliance. Re-inspection required.' },
+  { drNumber:'DR-0012', drNumeric:12, discipline:'Roads & Infrastructure', subcontractor:'El Seif Engineering', location:'Access Road AR-02, Station 0+450', description:'Asphalt surface course thickness measured at 35mm vs specified 50mm. Core samples confirm deficiency across 120m stretch.', severity:'Major', status:'Closed', issuedBy:'Khalid Ibrahim', daysAgo:40, dueDays:21, correctiveAction:'Affected section milled and re-paved to correct thickness. New cores confirm compliance.', remarks:'PMC accepted closure report', closedDaysAgo:10 }
+];
+
+async function seedData() {
+  const btn = document.getElementById('seedBtn');
+  btn.disabled = true;
+  btn.textContent = 'Seeding...';
+  addLog('Starting seed process...', 'info');
+
+  const batch = db.batch();
+  const now = new Date();
+
+  for (const dr of sampleDRs) {
+    const ref = db.collection('deficiency_reports').doc();
+    const issued = new Date(now);
+    issued.setDate(issued.getDate() - dr.daysAgo);
+    const due = new Date(issued);
+    due.setDate(due.getDate() + dr.dueDays);
+
+    const doc = {
+      drNumber: dr.drNumber,
+      drNumeric: dr.drNumeric,
+      projectCode: 'NCD408',
+      discipline: dr.discipline,
+      subcontractor: dr.subcontractor,
+      location: dr.location,
+      description: dr.description,
+      severity: dr.severity,
+      status: dr.status,
+      issuedDate: firebase.firestore.Timestamp.fromDate(issued),
+      dueDate: firebase.firestore.Timestamp.fromDate(due),
+      closedDate: dr.closedDaysAgo ? firebase.firestore.Timestamp.fromDate(new Date(now.getTime() - dr.closedDaysAgo * 86400000)) : null,
+      issuedBy: dr.issuedBy,
+      closedBy: dr.status === 'Closed' ? 'Musab Saleh' : null,
+      correctiveAction: dr.correctiveAction,
+      remarks: dr.remarks,
+      photoURLs: [],
+      signatures: {},
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    batch.set(ref, doc);
+    addLog(`✓ ${dr.drNumber} — ${dr.discipline} — ${dr.status}`, 'ok');
+  }
+
+  try {
+    await batch.commit();
+    addLog(`\n🎉 SUCCESS! ${sampleDRs.length} DRs created in Firestore.`, 'ok');
+    addLog('→ Go to your Dashboard to see them live!', 'ok');
+    btn.textContent = '✅ Done! Go to Dashboard';
+    btn.onclick = () => window.location.href = './index.html';
+    btn.disabled = false;
+    btn.style.background = '#27ae60';
+  } catch (e) {
+    addLog(`\n❌ ERROR: ${e.message}`, 'err');
+    addLog('Make sure Firestore is enabled in Firebase Console:', 'err');
+    addLog('→ Build → Firestore Database → Create Database → Test Mode', 'err');
+    btn.disabled = false;
+    btn.textContent = 'Retry Seed';
+  }
+}
+
+async function clearData() {
+  if (!confirm('Delete ALL DRs? This cannot be undone.')) return;
+  const btn = document.getElementById('clearBtn');
+  btn.disabled = true;
+  btn.textContent = 'Clearing...';
+  addLog('Deleting all DRs...', 'info');
+
+  try {
+    const snap = await db.collection('deficiency_reports').get();
+    const batch = db.batch();
+    snap.forEach(doc => batch.delete(doc.ref));
+    await batch.commit();
+    addLog(`✓ Deleted ${snap.size} DRs`, 'ok');
+    btn.disabled = false;
+    btn.textContent = '🗑 Clear All DRs';
+  } catch (e) {
+    addLog(`❌ Error: ${e.message}`, 'err');
+    btn.disabled = false;
+    btn.textContent = '🗑 Clear All DRs';
+  }
+}
+</script>
+</body>
+</html>
