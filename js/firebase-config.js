@@ -6,6 +6,12 @@
 // ║         Project Settings ⚙️ → General → Web App → Config    ║
 // ╚══════════════════════════════════════════════════════════════╝
 
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyBOkBV9wzg0oFR5RbN7TelR3UCwpcvZcc4",
   authDomain: "binyah-dr-system-77705.firebaseapp.com",
@@ -16,7 +22,7 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-firebase.initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
 
 // Firestore (cloud database) + Storage (photos)
 const db      = firebase.firestore();
